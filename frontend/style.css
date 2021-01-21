@@ -10,6 +10,23 @@ body {
     padding: 0
 }
 
+.search {
+    text-align: center;
+}
+
+.searchBox {
+    min-width: 50%;
+    max-width: 500px;
+}
+
+.searchButton {
+    max-width: 100px;
+    background-color: #01b0f4;
+    border: 1px solid #2666d6;
+    border-radius: 5px;
+    padding: 10px 20px;
+}
+
 @media (prefers-color-scheme: dark) {
     body {
         color: #dcddde;

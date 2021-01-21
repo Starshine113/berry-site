@@ -9,6 +9,9 @@ const bunyan = require('bunyan');
 const termPage = fs.readFileSync(path.join(__dirname + '/frontend/term.html'), 'utf8');
 const notFoundPage = fs.readFileSync(path.join(__dirname + '/frontend/404.html'), 'utf8');
 const indexPage = fs.readFileSync(path.join(__dirname + '/frontend/index.html'), 'utf8');
+const searchPage = fs.readFileSync(path.join(__dirname + '/frontend/searchpage.html'), 'utf8');
+const termResult = fs.readFileSync(path.join(__dirname + '/frontend/termResult.html'), 'utf8');
+const noQuery = fs.readFileSync(path.join(__dirname + '/frontend/noQuery.html'), 'utf8');
 
 const axinst = axios.create({
     validateStatus: (s) => s < 500,
@@ -81,8 +84,38 @@ async function getTerm(req, res) {
     }
 }
 
+async function search(req, res) {
+    try {
+        let terms = (await axinst('/search/' + req.query.q.toLowerCase())).data;
+        let searchP = searchPage;
+
+        let termText = '';
+
+        terms.forEach(t => {
+            let term = termResult;
+
+            let headline = t.headline || t.description;
+
+            if (!headline.startsWith(t.description.slice(0, 5))) {
+                headline = '...' + headline;
+            }
+            if (!headline.endsWith(t.description.slice(-5))) {
+                headline = headline + '...';
+            }
+
+            termText += term.replace('$NAME', `<a href="/term/${encodeURI(t.name.toLowerCase())}">${t.name} (${t.aliases.join(', ') || 'no aliases'})</a>`).replace('$DESC', converter.makeHtml(headline));
+        });
+
+        res.send(searchP.replace('$RESULTS', termText).replace('$COUNT', terms.length));
+    } catch (e) {
+        console.log(e);
+        res.send(noQuery);
+    }
+}
+
 app.get("/", getRoot);
 app.get("/term/:term", getTerm);
+app.get("/search", search);
 app.use(express.static(path.join(__dirname, '/frontend/')));
 
 const port = process.env.PORT || 8080;
