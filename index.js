@@ -15,7 +15,7 @@ const noQuery = fs.readFileSync(path.join(__dirname + '/frontend/noQuery.html'),
 
 const axinst = axios.create({
     validateStatus: (s) => s < 500,
-    baseURL: 'https://termora.starshines.xyz/api/v1'
+    baseURL: 'https://api.termora.org/v1'
 });
 
 const log = bunyan.createLogger({
